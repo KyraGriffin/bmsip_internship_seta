@@ -1,0 +1,63 @@
+---
+title: "Report"
+author: "Kyra Griffin"
+date: '2022-06-13'
+output: html_document
+---
+
+Use this block to source your `main.R`.
+
+```{r setup, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+source('main.R')
+```
+
+## 1. Reading the data from proteomics_ack.xlsx
+
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+#Read in verse_counts.tsv and sample_metadata.csv and subset to the listed samples
+proteomics_ack <- read_data("data/proteomics_ack.xlsx")
+
+#knitr::kable(proteomics_ack)
+proteomics_ack
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+proteomics_ack <- select_columns(proteomics_ack)
+proteomics_ack
+```
+
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+protein_groups <- id_protein_groups(proteomics_ack)
+protein_groups
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+proteomics_ack <- consolidate_data(proteomics_ack, protein_groups)
+proteomics_ack
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
