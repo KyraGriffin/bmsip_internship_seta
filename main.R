@@ -60,7 +60,8 @@ id_protein_groups <- function(proteomics_ack){
 consolidate_data <- function(proteomics_ack, protein_groups) {
   
   proteomics_ack <- proteomics_ack %>% 
-    dplyr::filter(!"Index in Detail" %in% protein_groups)
+    drop_na("Sample2vSample1") %>% 
+    dplyr::select(-c("Index", "Index in Detail"))
   
   return(proteomics_ack)
 }
