@@ -39,15 +39,39 @@ proteomics_ack <- consolidate_data(proteomics_ack, protein_groups)
 proteomics_ack
 ```
 
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+t_test_data <- form_t_test_data(proteomics_ack)
+t_test_data
+```
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+summary_t_test_data <- summary_t_test_data(t_test_data)
+summary_t_test_data
+```
 
 
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+visulaize_t_test_data(t_test_data)
+```
 
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+# Shapiro-Wilk normality test for Sample2vSample1 fold change
+with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample2vSample1"])) # p = 0.1
 
+# Shapiro-Wilk normality test for Sample3vSample1 fold change
+with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample3vSample1"])) # p = 0.6
 
+# Shapiro-Wilk normality test for Sample3vSample2 fold change
+with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample3vSample2"])) # p = 0.6
+```
 
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+# res.ftest <- var.test(normFoldChange ~ sampleVsample, data = t_test_data)
+# res.ftest
 
-
-
+# res <- t.test(normFoldChange ~ sampleVsample, data = t_test_data, var.equal = TRUE)
+# res
+```
 
 
 

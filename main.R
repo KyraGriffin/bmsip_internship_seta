@@ -7,11 +7,7 @@
 
 library('tidyverse')
 library(readxl)
-# library('SummarizedExperiment')
-# library('DESeq2')
-# library('biomaRt')
-# library('testthat')
-# library('fgsea')
+library(ggplot2)
 
 #' Function to read in the proteomics data
 #'
@@ -67,5 +63,44 @@ consolidate_data <- function(proteomics_ack, protein_groups) {
 }
 
 
+form_t_test_data <- function(proteomics_ack) {
+  
+  proteomics_ack$Sample3vSample1 <- as.double(proteomics_ack$Sample3vSample1)
+  
+  t_test_data <- proteomics_ack %>% 
+    dplyr::select(c("Sample2vSample1", "Sample3vSample1", "Sample3vSample2")) %>% 
+    pivot_longer(everything(),
+                 names_to = "sampleVsample",
+                 values_to = "normFoldChange")
+  
+  return(t_test_data)
+}
+
+summary_t_test_data <- function(t_test_data){
+  
+  summary <- group_by(t_test_data, sampleVsample) %>%
+    summarise(
+    count = n(),
+    mean = mean(normFoldChange, na.rm = TRUE),
+    sd = sd(normFoldChange, na.rm = TRUE)
+  )
+  
+  return(summary)
+}
+
+visulaize_t_test_data <- function(t_test_data){
+  
+  p <- ggplot(t_test_data, 
+                 aes(x=sampleVsample, y=normFoldChange, color=normFoldChange)) +
+    geom_boxplot() +
+    scale_color_manual(values=c("#81CBD5", "#993342", "#D2B279")) +
+    labs(title="Preliminary Visualization",x="Samples", y = "Normalized Fold Change") +
+    theme(legend.position="bottom",
+          axis.text = element_text(size = 8),
+          axis.title = element_text(size = 10),
+          plot.title = element_text(size = 16))
+  
+  return(p)
+}
 
 
