@@ -56,21 +56,23 @@ visulaize_t_test_data(t_test_data)
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 # Shapiro-Wilk normality test for Sample2vSample1 fold change
-with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample2vSample1"])) # p = 0.1
+with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample2vSample1"])) 
 
 # Shapiro-Wilk normality test for Sample3vSample1 fold change
-with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample3vSample1"])) # p = 0.6
+with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample3vSample1"]))
 
 # Shapiro-Wilk normality test for Sample3vSample2 fold change
-with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample3vSample2"])) # p = 0.6
+with(t_test_data, shapiro.test(normFoldChange[sampleVsample == "Sample3vSample2"]))
 ```
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
-# res.ftest <- var.test(normFoldChange ~ sampleVsample, data = t_test_data)
-# res.ftest
+res.aov <- t_test_data %>% anova_test(normFoldChange ~ sampleVsample)
+res.aov
 
-# res <- t.test(normFoldChange ~ sampleVsample, data = t_test_data, var.equal = TRUE)
-# res
+# Pairwise comparisons
+pwc <- t_test_data %>%
+  pairwise_t_test(normFoldChange ~ sampleVsample, p.adjust.method = "bonferroni")
+pwc
 ```
 
 

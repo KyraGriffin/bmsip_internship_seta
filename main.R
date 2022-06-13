@@ -1,13 +1,9 @@
 
-# if (!require("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
-# 
-# BiocManager::install("biomaRt")
-# BiocManager::install("fgsea")
-
 library('tidyverse')
 library(readxl)
+library(rstatix)
 library(ggplot2)
+library(stringr)
 
 #' Function to read in the proteomics data
 #'
@@ -65,7 +61,11 @@ consolidate_data <- function(proteomics_ack, protein_groups) {
 
 form_t_test_data <- function(proteomics_ack) {
   
+  proteomics_ack$Sample3vSample1 <- str_replace(proteomics_ack$Sample3vSample1,"-", "0") 
   proteomics_ack$Sample3vSample1 <- as.double(proteomics_ack$Sample3vSample1)
+  
+  #replace NA values with zero in rebs column only
+  proteomics_ack <- proteomics_ack %>% mutate(Sample3vSample1 = ifelse(is.na(Sample3vSample1), 0, Sample3vSample1))
   
   t_test_data <- proteomics_ack %>% 
     dplyr::select(c("Sample2vSample1", "Sample3vSample1", "Sample3vSample2")) %>% 
