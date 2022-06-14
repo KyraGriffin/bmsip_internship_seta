@@ -12,8 +12,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
 source('main.R')
 ```
 
-## 1. Reading the data from proteomics_ack.xlsx
-
+### Reading the data from proteomics_ack.xlsx
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 #Read in verse_counts.tsv and sample_metadata.csv and subset to the listed samples
@@ -27,7 +26,6 @@ proteomics_ack
 proteomics_ack <- select_columns(proteomics_ack)
 proteomics_ack
 ```
-
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 protein_groups <- id_protein_groups(proteomics_ack)
@@ -44,15 +42,45 @@ t_test_data <- form_t_test_data(proteomics_ack)
 t_test_data
 ```
 
+### Data Visualization / Exploratory Findings
+
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 summary_t_test_data <- summary_t_test_data(t_test_data)
 summary_t_test_data
 ```
 
-
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 visulaize_t_test_data(t_test_data)
 ```
+Visualizing the max abundance:
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+# abundance_plot <- plot_abundance(proteomics_ack)
+# 
+# abundance_plot
+
+proteomics_ack$Sample3vSample1 <- str_replace(proteomics_ack$Sample3vSample1,"-", "0") 
+proteomics_ack$Sample3vSample1 <- as.double(proteomics_ack$Sample3vSample1)
+  
+#replace NA values with zero in rebs column only
+proteomics_ack <- proteomics_ack %>% mutate(Sample3vSample1 = ifelse(is.na(Sample3vSample1), 0, Sample3vSample1))
+  
+data <- proteomics_ack %>% 
+  dplyr::select(c("Sample2vSample1", "Sample3vSample1", "Sample3vSample2", "Max Abundance", "Count In Details")) %>% 
+  pivot_longer(cols =c("Sample2vSample1", "Sample3vSample1", "Sample3vSample2"),
+                 names_to = "sampleVsample",
+                 values_to = "normFoldChange")
+
+
+proteomics_ack %>% 
+  ggplot(aes(x="Max Abundance", y=Index)) +
+  geom_point()
+```
+
+
+
+
+
+### Statistical Analysis
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 # Shapiro-Wilk normality test for Sample2vSample1 fold change
@@ -74,16 +102,3 @@ pwc <- t_test_data %>%
   pairwise_t_test(normFoldChange ~ sampleVsample, p.adjust.method = "bonferroni")
 pwc
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
