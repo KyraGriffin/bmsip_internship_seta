@@ -35,6 +35,8 @@ protein_groups
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}
 proteomics_ack <- consolidate_data(proteomics_ack, protein_groups)
 proteomics_ack
+
+write.csv(proteomics_ack, "data/proteomics_ack.csv")
 ```
 
 ```{r, warning=FALSE, message=FALSE, echo=FALSE}

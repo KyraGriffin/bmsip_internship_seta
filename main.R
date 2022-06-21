@@ -26,12 +26,12 @@ read_data <- function(p_path) {
 #'
 select_columns <- function(proteomics_ack) {
   
-  proteomics_ack <- proteomics_ack %>% 
-    dplyr::select(c("Index","Index in Detail","Sample 2 : Sample 1...3", 
-                "Sample 3 : Sample 1...4", "Sample 3 : Sample 2...5", 
-                "Max Abundance", "Max % CV", "Gene Name", "Protein Name",
-                "Site", "Description", "Accession", "kD", "Peptide",
-                "Charge","Calc. m/z", "Count In Details", "Average RT", "Species"))
+  # proteomics_ack <- proteomics_ack %>% 
+  #   dplyr::select(c("Index","Index in Detail","Sample 2 : Sample 1...3", 
+  #               "Sample 3 : Sample 1...4", "Sample 3 : Sample 2...5", 
+  #               "Max Abundance", "Max % CV", "Gene Name", "Protein Name",
+  #               "Site", "Description", "Accession", "kD", "Peptide",
+  #               "Charge","Calc. m/z", "Count In Details", "Average RT", "Species"))
 
   
   proteomics_ack <- proteomics_ack %>% 
@@ -67,8 +67,9 @@ id_protein_groups <- function(proteomics_ack){
 consolidate_data <- function(proteomics_ack, protein_groups) {
   
   proteomics_ack <- proteomics_ack %>% 
-    drop_na("Sample2vSample1") %>% 
-    dplyr::select(-c("Index", "Index in Detail"))
+    drop_na("Sample2vSample1") 
+  #%>% 
+    # dplyr::select(-c("Index", "Index in Detail"))
   
   return(proteomics_ack)
 }
