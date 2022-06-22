@@ -4,6 +4,8 @@ library(readxl)
 library(rstatix)
 library(ggplot2)
 library(stringr)
+install.packages('GGally')
+library('GGally')
 
 #' Function to read in the proteomics data
 #'

@@ -79,6 +79,23 @@ write.csv(proteomics_ack, "data/proteomics_ack.csv")
 ```
 
 
+## Parallele Coordinate Plot of normalized fold change for all samples
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+library(GGally)
+
+data <- proteomics_ack %>% 
+    dplyr::select(c("Sample2vSample1", "Sample3vSample1", "Sample3vSample2")) %>% 
+    pivot_longer(everything(),
+                 names_to = "sampleVsample",
+                 values_to = "normFoldChange")
+
+ggparcoord(proteomics_ack,
+           columns=c(3,4,5),
+           showPoints=TRUE
+           ) +
+  scale_color_manual(values=c("#bbbbbb", "#666666"))
+```
+
 
 
 
