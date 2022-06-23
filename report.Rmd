@@ -92,8 +92,11 @@ data <- proteomics_ack %>%
 ggparcoord(proteomics_ack,
            columns=c(3,4,5),
            showPoints=TRUE
-           ) +
-  scale_color_manual(values=c("#bbbbbb", "#666666"))
+           )
+  # scale_color_manual(c("Sample2vSample1" = "red", 
+  #                                 "Sample3vSample1" = "green", 
+  #                                 "Sample3vSample2" = "blue"))
+
 ```
 
 
