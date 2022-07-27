@@ -50,3 +50,15 @@ fgsea_results
 fgsea_results <- write_csv(fgsea_results, "data/fgsea.csv")
 
 ####################
+
+### Attempted Plotting ###
+fgsea_results %>%
+  mutate(pathway = forcats::fct_reorder(pathway, NES)) %>%
+  ggplot() +
+  geom_bar(aes(x=pathway, y=NES, fill = padj < .95), stat='identity') +
+  scale_fill_manual(values = c('TRUE' = 'red', 'FALSE' = 'blue')) + 
+  theme_minimal() +
+  ggtitle('fgsea results for protein sets') +
+  ylab('Normalized Enrichment Score (NES)') +
+  xlab('') +
+  coord_flip()
