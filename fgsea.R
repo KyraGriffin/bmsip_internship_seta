@@ -1,23 +1,6 @@
 library('tidyverse')
 library('fgsea')
 
-common_proteins <- read.csv("data/common_proteins.csv")
-common_proteins <- common_proteins %>% 
-  as_tibble() %>% 
-  pivot_wider(names_from = X, values_from = counts)
-              
-head(common_proteins)
-# rnk_list <- setNames(counts, common_proteins)
-# head(rnk_list)
-
-pathways_fgsea <- fgsea::gmtPathways('data/c2.cp.v7.5.1.symbols.gmt')
-
-fgsea_results <- fgsea(pathways_fgsea, 
-                       common_proteins, 
-                       minSize = 15, 
-                       maxSize=500)
-
-fgsea_results <- fgsea_results %>% as_tibble()
 
 #' Function to run fgsea on DESeq2 results
 #'
