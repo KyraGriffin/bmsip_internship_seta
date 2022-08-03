@@ -5,13 +5,12 @@ library(biomaRt)
 
 #' Function to run fgsea on results
 #'
-#' @param labeled_results (tibble): the labeled results from DESeq2
-#' @param gmt (str): the path to the GMT file
+#' @param labeled_results (tibble): the results
 #' @param min_size: the threshold for minimum size of the gene set
 #' @param max_size: the threshold for maximum size of the gene set
 #'
 #' @return tibble containing the results from running fgsea using descending
-#' log2foldchange as a ranking metric
+#' beta values as a ranking metric
 #' @export
 #'
 #' @examples fgsea_results <- run_gsea(labeled_results, 'c2.cp.v7.5.1.symbols.gmt', 15, 500)
@@ -35,7 +34,7 @@ run_common_gsea <- function(labeled_results, min_size, max_size) {
   c2_pathways <- gmtPathways("data/c2.cp.v7.5.1.symbols.gmt")
   
   fgsea_results <- fgsea(c2_pathways, rnks, 
-                         minSize = min_size, maxSize = max_size) %>% as_tibble()
+                         minSize = min_size, maxSize = max_size) %>% as_tibble() # , nperm=10000
   
   return(fgsea_results)
 }
@@ -56,11 +55,16 @@ res <- inner_join(common_proteins, bm, by=c("First.Protein.Name"="hsapiens_homol
 
 common_proteins <- res %>% 
   dplyr::select(First.Protein.Name, fc_betas) %>% 
-  na.omit()
+  na.omit() %>% 
+  group_by(First.Protein.Name) %>% 
+  filter(abs(fc_betas) == max(abs(fc_betas))) %>% 
+  distinct()
+
 
 common_fgsea_results <- run_common_gsea(common_proteins, 0, 500)
 common_fgsea_results
 common_fgsea_results <- write_csv(common_fgsea_results, "data/common_proteins_fgsea.csv")
+
 
 ####################
 
@@ -82,13 +86,3 @@ ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
        title="Pathways NES from GSEA") + 
   theme_minimal()
 
-# common_fgsea_results %>%
-#   mutate(pathway = forcats::fct_reorder(pathway, NES)) %>%
-#   ggplot() +
-#   geom_bar(aes(x=pathway, y=NES, fill = padj < .95), stat='identity') +
-#   scale_fill_manual(values = c('TRUE' = 'red', 'FALSE' = 'blue')) + 
-#   theme_minimal() +
-#   ggtitle('fgsea results for protein sets') +
-#   ylab('Normalized Enrichment Score (NES)') +
-#   xlab('') +
-#   coord_flip()
