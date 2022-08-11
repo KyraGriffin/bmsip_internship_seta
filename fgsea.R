@@ -14,7 +14,7 @@ library(biomaRt)
 #' @export
 #'
 #' @examples fgsea_results <- run_gsea(labeled_results, 'c2.cp.v7.5.1.symbols.gmt', 15, 500)
-run_common_gsea <- function(labeled_results, min_size, max_size) {
+run_gsea <- function(labeled_results, min_size, max_size) {
   
   labeled_results <- labeled_results %>% separate(First.Protein.Name, sep='\\.', into='First.Protein.Name', remove=TRUE)
   gene_ids <- labeled_results %>% pull(First.Protein.Name)
@@ -43,6 +43,8 @@ run_common_gsea <- function(labeled_results, min_size, max_size) {
 ########## FUNCTION CALLS ##############
 
 common_proteins <- read.csv("data/common_proteins.csv")
+ack_proteins <- read.csv("data/ack_proteins.csv")
+total_proteins <- read.csv("data/total_proteins.csv")
 
 mart <- useDataset("mmusculus_gene_ensembl", mart=useMart("ensembl"))
 bm <- getBM(attributes=c("ensembl_gene_id", "hsapiens_homolog_associated_gene_name"), mart=mart) %>%
@@ -51,9 +53,25 @@ bm <- getBM(attributes=c("ensembl_gene_id", "hsapiens_homolog_associated_gene_na
   na_if("") %>% 
   na.omit()
 
-res <- inner_join(common_proteins, bm, by=c("First.Protein.Name"="hsapiens_homolog_associated_gene_name"))
+common <- inner_join(common_proteins, bm, by=c("First.Protein.Name"="hsapiens_homolog_associated_gene_name"))
+ack <- inner_join(ack_proteins, bm, by=c("First.Protein.Name"="hsapiens_homolog_associated_gene_name"))
+total <- inner_join(total_proteins, bm, by=c("First.Protein.Name"="hsapiens_homolog_associated_gene_name"))
 
-common_proteins <- res %>% 
+common_proteins <- common %>% 
+  dplyr::select(First.Protein.Name, fc_betas) %>% 
+  na.omit() %>% 
+  group_by(First.Protein.Name) %>% 
+  filter(abs(fc_betas) == max(abs(fc_betas))) %>% 
+  distinct()
+
+ack_proteins <- ack %>% 
+  dplyr::select(First.Protein.Name, fc_betas) %>% 
+  na.omit() %>% 
+  group_by(First.Protein.Name) %>% 
+  filter(abs(fc_betas) == max(abs(fc_betas))) %>% 
+  distinct()
+
+total_proteins <- total %>% 
   dplyr::select(First.Protein.Name, fc_betas) %>% 
   na.omit() %>% 
   group_by(First.Protein.Name) %>% 
@@ -61,10 +79,17 @@ common_proteins <- res %>%
   distinct()
 
 
-common_fgsea_results <- run_common_gsea(common_proteins, 0, 500)
+common_fgsea_results <- run_gsea(common_proteins, 0, 500)
 common_fgsea_results
 common_fgsea_results <- write_csv(common_fgsea_results, "data/common_proteins_fgsea.csv")
 
+ack_fgsea_results <- run_gsea(ack_proteins, 0, 500)
+ack_fgsea_results
+ack_fgsea_results <- write_csv(ack_fgsea_results, "data/ack_proteins_fgsea.csv")
+
+total_fgsea_results <- run_gsea(total_proteins, 0, 500)
+total_fgsea_results
+total_fgsea_results <- write_csv(total_fgsea_results, "data/total_proteins_fgsea.csv")
 
 ####################
 
