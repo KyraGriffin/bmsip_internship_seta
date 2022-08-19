@@ -1,6 +1,16 @@
+######
+# Author: Kyra Griffin
+# Project: BMSIP Internship 2022
+# PI: Dr. Francesca Seta
+# Mentor: Joey Orofino
+# Internship Director: Adam Labadorf
+######
+
+
 library('tidyverse')
 library('fgsea')
 library(biomaRt)
+library(data.table)
 
 
 #' Function to run fgsea on results
@@ -82,32 +92,104 @@ total_proteins <- total %>%
 common_fgsea_results <- run_gsea(common_proteins, 0, 500)
 common_fgsea_results
 common_fgsea_results <- write_csv(common_fgsea_results, "data/common_proteins_fgsea.csv")
+fwrite(common_fgsea_results, file="data/common_fgsea_results.csv", sep=",", sep2=c("", " ", ""))
 
 ack_fgsea_results <- run_gsea(ack_proteins, 0, 500)
 ack_fgsea_results
 ack_fgsea_results <- write_csv(ack_fgsea_results, "data/ack_proteins_fgsea.csv")
+fwrite(ack_fgsea_results, file="data/ack_fgsea_results.csv", sep=",", sep2=c("", " ", ""))
 
 total_fgsea_results <- run_gsea(total_proteins, 0, 500)
 total_fgsea_results
 total_fgsea_results <- write_csv(total_fgsea_results, "data/total_proteins_fgsea.csv")
+fwrite(total_fgsea_results, file="data/total_fgsea_results.csv", sep=",", sep2=c("", " ", ""))
+###################
 
-####################
-
-fgseaResTidy <- common_fgsea_results %>%
+common<- common_fgsea_results %>%
   as_tibble() %>%
   arrange(desc(NES))
 
 # Show in a nice table:
-fgseaResTidy %>% 
-  dplyr::select(-leadingEdge, -ES) %>% 
+common <- common %>% 
+  dplyr::select(-ES) %>% 
   arrange(padj) %>% 
   DT::datatable()
 
-### Attempted Plotting ###
-ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
-  geom_col(aes(fill=padj<0.05)) +
-  coord_flip() +
-  labs(x="Pathway", y="Normalized Enrichment Score",
-       title="Pathways NES from GSEA") + 
-  theme_minimal()
+c <- common %>% arrange(pval)%>% 
+  slice(1:25) 
+
+fwrite(c, file="data/common_fgsea_results_25.csv", sep=",", sep2=c("", " ", ""))
+
+ack <- ack_fgsea_results %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+# Show in a nice table:
+ack %>% 
+  dplyr::select(-ES) %>% 
+  arrange(padj) %>% 
+  DT::datatable()
+
+a <- ack %>% arrange(pval)%>% 
+  slice(1:25) 
+
+fwrite(a, file="data/ack_fgsea_results_25.csv", sep=",", sep2=c("", " ", ""))
+
+
+total <- total_fgsea_results %>%
+  as_tibble() %>%
+  arrange(desc(NES))
+
+# Show in a nice table:
+total %>% 
+  dplyr::select(-ES) %>% 
+  arrange(padj) %>% 
+  DT::datatable()
+
+t <- total %>% arrange(pval)%>% 
+  slice(1:25) 
+
+fwrite(t, file="data/total_fgsea_results_25.csv", sep=",", sep2=c("", " ", ""))
+
+
+
+
+
+
+
+
+### Plotting ###
+
+c %>%
+  mutate(pathway = forcats::fct_reorder(pathway, NES)) %>%
+  ggplot() +
+  geom_bar(aes(x=pathway, y=NES), fill="blue", stat='identity') +
+  # scale_fill_manual(values = c('TRUE' = 'red', 'FALSE' = 'blue')) + 
+  theme_minimal() +
+  ggtitle('Top 25 Pathways from GSEA for Common Proteins') +
+  ylab('Normalized Enrichment Score (NES)') +
+  xlab('') +
+  coord_flip()
+
+a %>%
+  mutate(pathway = forcats::fct_reorder(pathway, NES)) %>%
+  ggplot() +
+  geom_bar(aes(x=pathway, y=NES), fill = 'blue', stat='identity') +
+  # scale_fill_manual(values = c('TRUE' = 'red', 'FALSE' = 'blue')) + 
+  theme_minimal() +
+  ggtitle('Top 25 Pathways from GSEA for Ack Proteins') +
+  ylab('Normalized Enrichment Score (NES)') +
+  xlab('') +
+  coord_flip()
+
+t %>%
+  mutate(pathway = forcats::fct_reorder(pathway, NES)) %>%
+  ggplot() +
+  geom_bar(aes(x=pathway, y=NES), fill = 'blue', stat='identity') +
+  # scale_fill_manual(values = c('TRUE' = 'red', 'FALSE' = 'blue')) + 
+  theme_minimal() +
+  ggtitle('Top 25 Pathways from GSEA for Total Proteins') +
+  ylab('Normalized Enrichment Score (NES)') +
+  xlab('') +
+  coord_flip()
 
